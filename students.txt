@@ -1,0 +1,4 @@
+Name Surname HW1 HW2 HW3 HW4 HW5 Exam
+John Smith 8 9 10 6 10 9
+Mary Johnson 7 10 8 5 4 6
+Alex Brown 10 9 8 9 10 10
