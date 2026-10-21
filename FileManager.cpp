@@ -4,15 +4,14 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <stdexcept>
 
 void FileManager::saveStudents(const std::vector<Person>& students)
 {
     std::ofstream file("Students.txt");
-
-    if (!file)
+    if (!file.is_open())
     {
-        std::cout << "\nError: Could not save students.\n";
-        return;
+        throw std::runtime_error("Could not open Students.txt for writing.");
     }
 
     file << "Name Surname HW1 HW2 HW3 HW4 HW5 Exam\n";
@@ -36,11 +35,11 @@ void FileManager::saveStudents(const std::vector<Person>& students)
 void FileManager::loadStudents(std::vector<Person>& students)
 {
     std::ifstream file("Students.txt");
-
-    if (!file)
+    if (!file.is_open())
     {
-        return;
+        throw std::runtime_error("Could not open Students.txt for reading.");
     }
+    
 
     std::string header;
     std::getline(file, header);

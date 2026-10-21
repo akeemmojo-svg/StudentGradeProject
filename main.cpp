@@ -7,6 +7,9 @@
 #include <random>
 #include "Person.h"
 #include "FileManager.h"
+#include <exception>
+
+void sortStudentsByName(std::vector<Person>& students);
 
 int readGrade(const std::string& message)
 {
@@ -91,10 +94,12 @@ void addStudent(std::vector<Person>& students)
 
     int examGrade = readGrade("Enter exam grade: ");
     person.setExamGrade(examGrade);
-
     students.push_back(person);
 
+    sortStudentsByName(students);
+
     FileManager::saveStudents(students);
+   
 
     std::cout << "\nStudent added successfully!\n";
 }
@@ -330,11 +335,17 @@ void generateRandomStudents(std::vector<Person>& students)
 int main()
 {
     std::vector<Person> students;
-
-    FileManager::loadStudents(students);
+    try
+    {
+        FileManager::loadStudents(students);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << "Error loading students: " << e.what() << '\n';
+    }
 
     sortStudentsByName(students);
-
+   
     int choice;
 
     while (true)
@@ -357,7 +368,9 @@ int main()
             continue;
         }
 
-        if (choice == 1)
+       try 
+       {
+           if (choice == 1)
         {
             addStudent(students);
         }
@@ -393,6 +406,11 @@ int main()
         {
             std::cout << "\nInvalid option. Please choose 1-7.\n";
         }
+       }
+       catch (const std::exception& e)
+       {
+           std::cerr << "\nOperation failed: " << e.what() << '\n';
+       }
     }
 
     return 0;
