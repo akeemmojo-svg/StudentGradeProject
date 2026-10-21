@@ -1,10 +1,12 @@
+
 #include <iostream>
 #include <vector>
+#include <string>
 #include <iomanip>
-#include <fstream>
 #include <algorithm>
 #include <random>
 #include "Person.h"
+#include "FileManager.h"
 
 int readGrade(const std::string& message)
 {
@@ -13,7 +15,14 @@ int readGrade(const std::string& message)
     while (true)
     {
         std::cout << message;
-        std::cin >> grade;
+
+        if (!(std::cin >> grade))
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "Invalid input. Please enter a number from 1 to 10.\n";
+            continue;
+        }
 
         if (grade >= 1 && grade <= 10)
         {
@@ -22,76 +31,6 @@ int readGrade(const std::string& message)
 
         std::cout << "Invalid grade. Please enter a grade from 1 to 10.\n";
     }
-}
-
-void saveStudents(const std::vector<Person>& students)
-{
-    std::ofstream file("Students.txt");
-
-    if (!file)
-    {
-        std::cout << "\nError: Could not save students.\n";
-        return;
-    }
-
-    file << "Name Surname HW1 HW2 HW3 HW4 HW5 Exam\n";
-
-    for (const Person& person : students)
-    {
-        file << person.getName() << " ";
-        file << person.getSurname() << " ";
-
-        std::vector<int> grades = person.getHomeworkGrades();
-
-        for (int grade : grades)
-        {
-            file << grade << " ";
-        }
-
-        file << person.getExamGrade() << "\n";
-    }
-
-    file.close();
-}
-
-void loadStudents(std::vector<Person>& students)
-{
-    std::ifstream file("Students.txt");
-
-    if (!file)
-    {
-        return;
-    }
-
-    std::string header;
-    std::getline(file, header);
-
-    std::string name;
-    std::string surname;
-
-    while (file >> name >> surname)
-    {
-        std::vector<int> grades;
-
-        for (int i = 0; i < 5; i++)
-        {
-            int grade;
-            file >> grade;
-            grades.push_back(grade);
-        }
-
-        int examGrade;
-        file >> examGrade;
-
-        Person person(name, surname);
-
-        person.setHomeworkGrades(grades);
-        person.setExamGrade(examGrade);
-
-        students.push_back(person);
-    }
-
-    file.close();
 }
 
 void addStudent(std::vector<Person>& students)
@@ -108,7 +47,6 @@ void addStudent(std::vector<Person>& students)
     std::cin >> surname;
 
     Person person(name, surname);
-
     std::vector<int> grades;
 
     std::cout << "\nEnter homework grades.\n";
@@ -119,7 +57,14 @@ void addStudent(std::vector<Person>& students)
         int grade;
 
         std::cout << "Enter homework grade: ";
-        std::cin >> grade;
+
+        if (!(std::cin >> grade))
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "Invalid input. Please enter a number.\n";
+            continue;
+        }
 
         if (grade == 0)
         {
@@ -149,7 +94,7 @@ void addStudent(std::vector<Person>& students)
 
     students.push_back(person);
 
-    saveStudents(students);
+    FileManager::saveStudents(students);
 
     std::cout << "\nStudent added successfully!\n";
 }
@@ -168,12 +113,26 @@ void listStudents(const std::vector<Person>& students)
     std::cout << "1. Average\n";
     std::cout << "2. Median\n";
     std::cout << "Choose calculation method: ";
-    std::cin >> method;
+
+    if (!(std::cin >> method))
+    {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        std::cout << "Invalid input.\n";
+        return;
+    }
 
     while (method != 1 && method != 2)
     {
         std::cout << "Invalid choice. Please enter 1 or 2: ";
-        std::cin >> method;
+
+        if (!(std::cin >> method))
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "Invalid input.\n";
+            return;
+        }
     }
 
     std::cout << "\n===== STUDENT RESULTS =====\n\n";
@@ -296,7 +255,7 @@ void deleteStudent(std::vector<Person>& students)
 
             students.erase(it);
 
-            saveStudents(students);
+            FileManager::saveStudents(students);
 
             std::cout << "Student deleted successfully.\n";
             return;
@@ -323,7 +282,14 @@ void generateRandomStudents(std::vector<Person>& students)
     int numberOfStudents;
 
     std::cout << "\nHow many random students do you want to generate? ";
-    std::cin >> numberOfStudents;
+
+    if (!(std::cin >> numberOfStudents))
+    {
+        std::cin.clear();
+        std::cin.ignore(10000, '\n');
+        std::cout << "Invalid input.\n";
+        return;
+    }
 
     if (numberOfStudents <= 0)
     {
@@ -333,7 +299,6 @@ void generateRandomStudents(std::vector<Person>& students)
 
     std::random_device rd;
     std::mt19937 generator(rd());
-
     std::uniform_int_distribution<int> gradeDistribution(1, 10);
 
     for (int i = 1; i <= numberOfStudents; i++)
@@ -356,7 +321,7 @@ void generateRandomStudents(std::vector<Person>& students)
         students.push_back(person);
     }
 
-    saveStudents(students);
+    FileManager::saveStudents(students);
 
     std::cout << numberOfStudents
         << " random students generated successfully.\n";
@@ -366,7 +331,7 @@ int main()
 {
     std::vector<Person> students;
 
-    loadStudents(students);
+    FileManager::loadStudents(students);
 
     sortStudentsByName(students);
 
@@ -384,7 +349,13 @@ int main()
         std::cout << "7. Exit\n";
         std::cout << "Choose an option: ";
 
-        std::cin >> choice;
+        if (!(std::cin >> choice))
+        {
+            std::cin.clear();
+            std::cin.ignore(10000, '\n');
+            std::cout << "\nInvalid input. Please choose 1-7.\n";
+            continue;
+        }
 
         if (choice == 1)
         {
@@ -409,12 +380,11 @@ int main()
         else if (choice == 6)
         {
             sortStudentsByName(students);
-
             std::cout << "\nStudents sorted by name.\n";
         }
         else if (choice == 7)
         {
-            saveStudents(students);
+            FileManager::saveStudents(students);
 
             std::cout << "\nGoodbye!\n";
             break;

@@ -1,6 +1,7 @@
 
-#ifndef FILEMANAGER_H
-#define FILEMANAGER_H
+
+
+#pragma once
 
 #include <vector>
 #include "Person.h"
@@ -11,6 +12,3 @@ public:
     static void saveStudents(const std::vector<Person>& students);
     static void loadStudents(std::vector<Person>& students);
 };
-
-#endif
-

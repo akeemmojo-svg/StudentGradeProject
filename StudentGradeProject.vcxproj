@@ -139,6 +139,7 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="person.cpp" />
     <ClCompile Include="StudentGradeProject.cpp" />
