@@ -1,27 +1,42 @@
+# Student Grade Project
 
-## V0.25 - Container Performance Comparison
+## Introduction
 
-### Overview
-This version compares the performance of three C++ containers:
-- `std::vector`
-- `std::list`
-- `std::deque`
+The Student Grade Project is a C++ application for managing students and calculating their final grades.
 
-### Benchmark Process
-The program uses five datasets containing:
-- 1,000 students
-- 10,000 students
-- 100,000 students
-- 1,000,000 students
-- 10,000,000 students
+The program allows the user to:
 
-For each dataset, the program measures the total processing time, including:
-1. Reading student data from the input file.
-2. Sorting students by final grade in descending order.
-3. Separating passed students (final grade >= 5.0) and failed students (final grade < 5.0).
-4. Writing the passed and failed students to separate output files.
+- Add students
+- Enter an unknown number of homework grades
+- Enter exam grades
+- Calculate homework average
+- Calculate homework median
+- Calculate final grades using Average or Median
+- Generate random students and grades
+- Find students
+- Delete students
+- Sort students by name
+- Save and load student data using a text file
+- Display results in formatted columns
 
-### Results
-The program saves measured times to `container_benchmark_results.csv`.
+The project uses object-oriented programming concepts, the `Person` class, `std::vector`, file handling, sorting, random number generation, and the Rule of Three.
 
-The results can be used to compare the performance of `std::vector`, `std::list`, and `std::deque` for different dataset sizes.
+## Final Grade Formula
+
+The final grade is calculated using the following formula:
+
+**Final points = 0.4 × (Average of HW | Median of HW) + 0.6 × Exam**
+
+The user can choose whether the Average or Median of homework grades is used.
+
+## Project Structure
+
+- `Person.h` - Person class declaration
+- `Person.cpp` - Person class implementation
+- `main.cpp` - Main program and menu
+- `Students.txt` - Student data file
+- `README.md` - Project documentation
+
+## Version
+
+Current version: v0.1
