@@ -1,10 +1,5 @@
 Name Surname HW1 HW2 HW3 HW4 HW5 Exam
-Aben o 4 7 6 4
-Alex Brown 10 9 8 9 10 10
-John Smith 8 9 10 6 10 9
-Mary Johnson 7 10 8 5 4 6
-Student1 Surname1 1 8 1 7 9 9
-Student2 Surname2 10 9 10 9 7 4
-Student3 Surname3 9 10 10 5 7 3
-aben a 4 5 6 6
-s'oa ae 8 5 6 4 5 8
+Student1 Surname1 1 6 2 7 4 7
+Student2 Surname2 9 10 3 7 8 2
+Student3 Surname3 10 2 4 4 3 2
+Student4 Surname4 10 4 7 5 2 2
