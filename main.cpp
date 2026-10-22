@@ -8,6 +8,7 @@
 #include "Person.h"
 #include "FileManager.h"
 #include <exception>
+#include "BenchmarkProcessor.h"
 
 void sortStudentsByName(std::vector<Person>& students);
 
@@ -345,9 +346,8 @@ int main()
     }
 
     sortStudentsByName(students);
-   
-    int choice;
 
+    int choice;
     while (true)
     {
         std::cout << "\n===== STUDENT GRADE PROJECT =====\n";
@@ -357,61 +357,66 @@ int main()
         std::cout << "4. Delete student\n";
         std::cout << "5. Generate random students\n";
         std::cout << "6. Sort students by name\n";
-        std::cout << "7. Exit\n";
+        std::cout << "7. Generate datasets and benchmark\n";
+        std::cout << "8. Exit\n";
         std::cout << "Choose an option: ";
 
         if (!(std::cin >> choice))
         {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
-            std::cout << "\nInvalid input. Please choose 1-7.\n";
+            std::cout << "\nInvalid input. Please choose 1-8.\n";
             continue;
         }
 
-       try 
-       {
-           if (choice == 1)
+        try
         {
-            addStudent(students);
+            if (choice == 1)
+            {
+                addStudent(students);
+            }
+            else if (choice == 2)
+            {
+                listStudents(students);
+            }
+            else if (choice == 3)
+            {
+                findStudent(students);
+            }
+            else if (choice == 4)
+            {
+                deleteStudent(students);
+            }
+            else if (choice == 5)
+            {
+                generateRandomStudents(students);
+            }
+            else if (choice == 6)
+            {
+                sortStudentsByName(students);
+                std::cout << "\nStudents sorted by name.\n";
+            }
+            else if (choice == 7)
+            {
+                BenchmarkProcessor::runVectorBenchmark();
+            }
+            else if (choice == 8)
+            {
+                FileManager::saveStudents(students);
+                std::cout << "\nGoodbye!\n";
+                break;
+            }
+            else
+            {
+                std::cout << "\nInvalid option. Please choose 1-8.\n";
+            }
         }
-        else if (choice == 2)
+        catch (const std::exception& error)
         {
-            listStudents(students);
+            std::cerr << "\nError: " << error.what() << '\n';
         }
-        else if (choice == 3)
-        {
-            findStudent(students);
-        }
-        else if (choice == 4)
-        {
-            deleteStudent(students);
-        }
-        else if (choice == 5)
-        {
-            generateRandomStudents(students);
-        }
-        else if (choice == 6)
-        {
-            sortStudentsByName(students);
-            std::cout << "\nStudents sorted by name.\n";
-        }
-        else if (choice == 7)
-        {
-            FileManager::saveStudents(students);
-
-            std::cout << "\nGoodbye!\n";
-            break;
-        }
-        else
-        {
-            std::cout << "\nInvalid option. Please choose 1-7.\n";
-        }
-       }
-       catch (const std::exception& e)
-       {
-           std::cerr << "\nOperation failed: " << e.what() << '\n';
-       }
     }
 
     return 0;
 }
+  
