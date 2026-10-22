@@ -1,42 +1,78 @@
 # Student Grade Project
 
-## Introduction
+## Description
 
-The Student Grade Project is a C++ application for managing students and calculating their final grades.
+Student Grade Project is a C++ console application for managing students and calculating their final grades. It supports adding, listing, finding, and deleting students, generating random student datasets, sorting students, and saving student information to files.
 
-The program allows the user to:
+Version 0.2 extends the project by separating the code into multiple source and header files and adding large-dataset processing and performance measurement.
 
-- Add students
-- Enter an unknown number of homework grades
-- Enter exam grades
-- Calculate homework average
-- Calculate homework median
-- Calculate final grades using Average or Median
-- Generate random students and grades
-- Find students
-- Delete students
-- Sort students by name
-- Save and load student data using a text file
-- Display results in formatted columns
+## Features
 
-The project uses object-oriented programming concepts, the `Person` class, `std::vector`, file handling, sorting, random number generation, and the Rule of Three.
+- Add, list, find, and delete students.
+- Store student information in files.
+- Generate random student datasets.
+- Sort students by final grade.
+- Separate passed and failed students into different output files.
+- Measure and display processing time for different dataset sizes.
+- Use exception handling for file and processing errors.
+- Organize the application into separate `.h` and `.cpp` files.
 
-## Final Grade Formula
+## Grade Calculation
 
-The final grade is calculated using the following formula:
+The final grade is calculated using homework results and the exam result.
 
-**Final points = 0.4 × (Average of HW | Median of HW) + 0.6 × Exam**
+The formula is:
 
-The user can choose whether the Average or Median of homework grades is used.
+**Final grade = 0.4 × Homework result + 0.6 × Exam result**
+
+The homework result can be calculated using the average or median of the homework grades, depending on the calculation method selected in the application.
+
+Students with a final grade of **5.0 or higher** are classified as passed. Students with a final grade below 5.0 are classified as failed.
+
+## Dataset Generation and Processing
+
+The benchmark generates datasets containing:
+
+- 1,000 students
+- 10,000 students
+- 100,000 students
+- 1,000,000 students
+- 10,000,000 students
+
+For each dataset, the program reads the student records, calculates final grades, sorts the students by final grade, separates passed and failed students, saves the results to output files, and displays the processing time.
+
+Generated input and output files are created when the benchmark is run.
 
 ## Project Structure
 
-- `Person.h` - Person class declaration
-- `Person.cpp` - Person class implementation
-- `main.cpp` - Main program and menu
-- `Students.txt` - Student data file
-- `README.md` - Project documentation
+The project is organized into separate source and header files. Main components include:
 
-## Version
+- `main.cpp` — program entry point and console menu.
+- `Person.h` and `Person.cpp` — student information and grade calculations.
+- `FileManager.h` and `FileManager.cpp` — student file operations.
+- `BenchmarkProcessor.h` and `BenchmarkProcessor.cpp` — dataset generation, processing, sorting, and timing.
 
-Current version: v0.1
+## Requirements
+
+- Visual Studio with C++ desktop development tools, or another compatible C++ compiler.
+- A C++ standard supported by the project configuration.
+
+## How to Build and Run
+
+1. Clone or download this repository.
+2. Open the solution in Visual Studio.
+3. Select the appropriate build configuration and platform.
+4. Build the solution.
+5. Run the application without debugging using **Ctrl + F5**.
+6. Select an option from the console menu.
+7. Choose the benchmark option to generate and process the datasets and display processing times.
+
+Large datasets, especially those containing millions of students, may require substantial memory and processing time.
+
+## Version 0.2
+
+Version 0.2 focuses on code organization, exception handling, random dataset generation, sorting by final grade, passed/failed output files, and processing-time measurement.
+
+## Author
+
+Student Grade Project — C++ coursework.
