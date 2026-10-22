@@ -1,0 +1,7 @@
+DatasetSize,Container,TotalSeconds
+1000,vector,0.0992148
+1000,list,0.0823527
+1000,deque,0.0951057
+10000,vector,0.844385
+10000,list,0.695169
+10000,deque,0.886725
