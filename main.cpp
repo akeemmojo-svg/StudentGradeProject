@@ -1,18 +1,16 @@
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <iomanip>
-#include <algorithm>
-#include <random>
-#include <exception>
-
 #include "Person.h"
 #include "FileManager.h"
 #include "BenchmarkProcessor.h"
 #include "ContainerBenchmark.h"
 
-void sortStudentsByName(std::vector<Person>& students);
+#include <iostream>
+#include <string>
+#include <vector>
+#include <limits>
+#include <cstdlib>
+#include <ctime>
+#include <algorithm>
 
 int readGrade(const std::string& message)
 {
@@ -22,253 +20,201 @@ int readGrade(const std::string& message)
     {
         std::cout << message;
 
-        if (!(std::cin >> grade))
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            std::cout << "Invalid input. Please enter a number from 1 to 10.\n";
-            continue;
-        }
-
-        if (grade >= 1 && grade <= 10)
+        if (std::cin >> grade && grade >= 0 && grade <= 10)
             return grade;
 
-        std::cout << "Invalid grade. Please enter a grade from 1 to 10.\n";
+        std::cout << "Invalid grade. Enter a number from 0 to 10.\n";
+
+        std::cin.clear();
+        std::cin.ignore(
+            std::numeric_limits<std::streamsize>::max(), '\n'
+        );
     }
 }
 
 void addStudent(std::vector<Person>& students)
 {
-    std::string name, surname;
+    std::string name;
+    std::string surname;
 
-    std::cout << "\n===== ADD STUDENT =====\n";
-    std::cout << "Enter name: ";
+    std::cout << "Enter first name: ";
     std::cin >> name;
+
     std::cout << "Enter surname: ";
     std::cin >> surname;
 
-    Person person(name, surname);
-    std::vector<int> grades;
+    int numberOfHomework;
 
-    std::cout << "\nEnter homework grades.\n";
-    std::cout << "Enter 0 when finished.\n";
-
-    while (true)
+    std::cout << "How many homework grades? ";
+    while (!(std::cin >> numberOfHomework) || numberOfHomework < 0)
     {
-        int grade;
-        std::cout << "Enter homework grade: ";
-
-        if (!(std::cin >> grade))
-        {
-            std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            std::cout << "Invalid input. Please enter a number.\n";
-            continue;
-        }
-
-        if (grade == 0)
-            break;
-
-        if (grade >= 1 && grade <= 10)
-            grades.push_back(grade);
-        else
-            std::cout << "Invalid grade. Enter 1-10 or 0 to finish.\n";
+        std::cout << "Enter a valid non-negative number: ";
+        std::cin.clear();
+        std::cin.ignore(
+            std::numeric_limits<std::streamsize>::max(), '\n'
+        );
     }
 
-    if (grades.empty())
+    std::vector<int> homework;
+
+    for (int i = 0; i < numberOfHomework; i++)
     {
-        std::cout << "At least one homework grade is required.\n";
-        return;
+        homework.push_back(readGrade("Enter homework grade: "));
     }
 
-    person.setHomeworkGrades(grades);
-    person.setExamGrade(readGrade("Enter exam grade: "));
-    students.push_back(person);
+    int exam = readGrade("Enter exam grade: ");
 
-    sortStudentsByName(students);
-    FileManager::saveStudents(students);
+    Person student(name, surname);
+    student.setHomeworkGrades(homework);
+    student.setExamGrade(exam);
 
-    std::cout << "\nStudent added successfully!\n";
+    students.push_back(student);
+
+    std::cout << "Student added successfully!\n";
 }
 
 void listStudents(const std::vector<Person>& students)
 {
     if (students.empty())
     {
-        std::cout << "\nNo students found.\n";
+        std::cout << "No students found.\n";
         return;
     }
 
-    int method;
-    std::cout << "\n===== CALCULATION METHOD =====\n";
-    std::cout << "1. Average\n2. Median\nChoose calculation method: ";
+    std::cout << "\n===== STUDENT LIST =====\n";
 
-    if (!(std::cin >> method) || (method != 1 && method != 2))
+    for (const Person& student : students)
     {
-        std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Invalid choice.\n";
-        return;
-    }
-
-    std::cout << "\n"
-        << std::left << std::setw(15) << "Name"
-        << std::setw(15) << "Surname"
-        << std::setw(18)
-        << (method == 1 ? "Final (Avg.)" : "Final (Med.)")
-        << "\n";
-
-    std::cout << "-----------------------------------------------\n";
-
-    for (const Person& person : students)
-    {
-        std::cout << std::left
-            << std::setw(15) << person.getName()
-            << std::setw(15) << person.getSurname()
-            << std::setw(18) << std::fixed << std::setprecision(2)
-            << (method == 1
-                ? person.calculateFinalGradeAverage()
-                : person.calculateFinalGradeMedian())
-            << "\n";
+        std::cout << student << '\n';
     }
 }
 
 void findStudent(const std::vector<Person>& students)
 {
-    if (students.empty())
-    {
-        std::cout << "\nNo students found.\n";
-        return;
-    }
+    std::string name;
 
-    std::string searchName;
-    std::cout << "\nEnter student name to find: ";
-    std::cin >> searchName;
+    std::cout << "Enter student first name: ";
+    std::cin >> name;
 
     bool found = false;
 
-    for (const Person& person : students)
+    for (const Person& student : students)
     {
-        if (person.getName() == searchName)
+        if (student.getName() == name)
         {
-            std::cout << "\n===== STUDENT FOUND =====\n";
-            std::cout << "Name: " << person.getName()
-                << " " << person.getSurname() << "\n";
-            std::cout << "Homework average: "
-                << person.calculateAverage() << "\n";
-            std::cout << "Homework median: "
-                << person.calculateMedian() << "\n";
-            std::cout << "Exam grade: " << person.getExamGrade() << "\n";
-            std::cout << "Final grade (Average): "
-                << person.calculateFinalGradeAverage() << "\n";
-            std::cout << "Final grade (Median): "
-                << person.calculateFinalGradeMedian() << "\n";
+            std::cout << student << '\n';
             found = true;
         }
     }
 
     if (!found)
-        std::cout << "\nStudent not found.\n";
+        std::cout << "Student not found.\n";
 }
 
 void deleteStudent(std::vector<Person>& students)
 {
-    if (students.empty())
-    {
-        std::cout << "\nNo students found.\n";
-        return;
-    }
+    std::string name;
 
-    std::string searchName;
-    std::cout << "\nEnter student name to delete: ";
-    std::cin >> searchName;
+    std::cout << "Enter first name of student to delete: ";
+    std::cin >> name;
 
-    for (auto it = students.begin(); it != students.end(); ++it)
-    {
-        if (it->getName() == searchName)
+    auto it = std::find_if(
+        students.begin(),
+        students.end(),
+        [&name](const Person& student)
         {
-            std::cout << "\nStudent found: " << it->getName()
-                << " " << it->getSurname() << "\n";
-
-            students.erase(it);
-            FileManager::saveStudents(students);
-
-            std::cout << "Student deleted successfully.\n";
-            return;
+            return student.getName() == name;
         }
-    }
+    );
 
-    std::cout << "\nStudent not found.\n";
+    if (it != students.end())
+    {
+        students.erase(it);
+        std::cout << "Student deleted successfully.\n";
+    }
+    else
+    {
+        std::cout << "Student not found.\n";
+    }
 }
 
 void sortStudentsByName(std::vector<Person>& students)
 {
-    std::sort(students.begin(), students.end(),
+    std::sort(
+        students.begin(),
+        students.end(),
         [](const Person& a, const Person& b)
         {
+            if (a.getName() == b.getName())
+                return a.getSurname() < b.getSurname();
+
             return a.getName() < b.getName();
-        });
+        }
+    );
+
+    std::cout << "Students sorted by name.\n";
 }
 
 void generateRandomStudents(std::vector<Person>& students)
 {
-    int numberOfStudents;
-    std::cout << "\nHow many random students do you want to generate? ";
+    int count;
 
-    if (!(std::cin >> numberOfStudents) || numberOfStudents <= 0)
+    std::cout << "How many students should be generated? ";
+
+    while (!(std::cin >> count) || count <= 0)
     {
+        std::cout << "Enter a valid positive number: ";
         std::cin.clear();
-        std::cin.ignore(10000, '\n');
-        std::cout << "Invalid number of students.\n";
-        return;
+        std::cin.ignore(
+            std::numeric_limits<std::streamsize>::max(), '\n'
+        );
     }
 
-    std::random_device rd;
-    std::mt19937 generator(rd());
-    std::uniform_int_distribution<int> gradeDistribution(1, 10);
+    const std::vector<std::string> names = {
+        "John", "Mary", "Alex", "Peter", "Anna",
+        "James", "Laura", "David", "Emma", "Michael"
+    };
 
-    for (int i = 1; i <= numberOfStudents; ++i)
+    const std::vector<std::string> surnames = {
+        "Smith", "Brown", "Johnson", "Wilson", "Taylor",
+        "Anderson", "Thomas", "Moore", "Martin", "White"
+    };
+
+    std::srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    for (int i = 0; i < count; i++)
     {
-        Person person(
-            "Student" + std::to_string(i),
-            "Surname" + std::to_string(i));
+        std::string name = names[std::rand() % names.size()];
+        std::string surname = surnames[std::rand() % surnames.size()];
 
-        std::vector<int> grades;
+        std::vector<int> homework;
 
-        for (int j = 0; j < 5; ++j)
-            grades.push_back(gradeDistribution(generator));
+        for (int j = 0; j < 5; j++)
+            homework.push_back(std::rand() % 11);
 
-        person.setHomeworkGrades(grades);
-        person.setExamGrade(gradeDistribution(generator));
-        students.push_back(person);
+        int exam = std::rand() % 11;
+
+        Person student(name, surname);
+        student.setHomeworkGrades(homework);
+        student.setExamGrade(exam);
+
+        students.push_back(student);
     }
 
-    FileManager::saveStudents(students);
-
-    std::cout << numberOfStudents
-        << " random students generated successfully.\n";
+    std::cout << count << " random students generated successfully!\n";
 }
 
 int main()
 {
     std::vector<Person> students;
 
-    try
-    {
-        FileManager::loadStudents(students);
-    }
-    catch (const std::exception& e)
-    {
-        std::cerr << "Error loading students: " << e.what() << '\n';
-    }
-
-    sortStudentsByName(students);
+    FileManager::loadStudents(students);
 
     int choice;
 
     while (true)
     {
-        std::cout << "\n===== STUDENT GRADE PROJECT =====\n";
+        std::cout << "\n========== STUDENT GRADE SYSTEM ==========\n";
         std::cout << "1. Add student\n";
         std::cout << "2. List students\n";
         std::cout << "3. Find student\n";
@@ -277,49 +223,76 @@ int main()
         std::cout << "6. Sort students by name\n";
         std::cout << "7. Generate datasets and benchmark vector\n";
         std::cout << "8. Original container benchmark\n";
-        std::cout << "9. Strategy 1 benchmark\n";
-        std::cout << "10. Exit\n";
+        std::cout << "9. Strategy 1 benchmark (copy)\n";
+        std::cout << "10. Strategy 2 benchmark (move)\n";
+        std::cout << "11. Exit\n";
         std::cout << "Choose an option: ";
 
         if (!(std::cin >> choice))
         {
+            std::cout << "Invalid input. Enter a number.\n";
             std::cin.clear();
-            std::cin.ignore(10000, '\n');
-            std::cout << "\nInvalid input. Please choose 1-10.\n";
+            std::cin.ignore(
+                std::numeric_limits<std::streamsize>::max(), '\n'
+            );
+            continue;
+        }
+
+        if (choice < 1 || choice > 11)
+        {
+            std::cout << "Invalid option. Choose from 1 to 11.\n";
             continue;
         }
 
         try
         {
-            if (choice == 1)
+            switch (choice)
+            {
+            case 1:
                 addStudent(students);
-            else if (choice == 2)
+                break;
+
+            case 2:
                 listStudents(students);
-            else if (choice == 3)
+                break;
+
+            case 3:
                 findStudent(students);
-            else if (choice == 4)
+                break;
+
+            case 4:
                 deleteStudent(students);
-            else if (choice == 5)
+                break;
+
+            case 5:
                 generateRandomStudents(students);
-            else if (choice == 6)
-            {
+                break;
+
+            case 6:
                 sortStudentsByName(students);
-                std::cout << "\nStudents sorted by name.\n";
-            }
-            else if (choice == 7)
+                break;
+
+            case 7:
                 BenchmarkProcessor::runVectorBenchmark();
-            else if (choice == 8)
+                break;
+
+            case 8:
                 ContainerBenchmark::runAllBenchmarks();
-            else if (choice == 9)
+                break;
+
+            case 9:
                 ContainerBenchmark::runStrategy1();
-            else if (choice == 10)
-            {
+                break;
+
+            case 10:
+                ContainerBenchmark::runStrategy2();
+                break;
+
+            case 11:
                 FileManager::saveStudents(students);
                 std::cout << "\nGoodbye!\n";
-                break;
+                return 0;
             }
-            else
-                std::cout << "\nInvalid option. Please choose 1-10.\n";
         }
         catch (const std::exception& error)
         {

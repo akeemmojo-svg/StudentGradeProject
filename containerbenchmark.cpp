@@ -94,9 +94,7 @@ namespace
     }
 
     template <typename Container>
-    void readStudents(
-        const std::string& filename,
-        Container& students)
+    void readStudents(const std::string& filename, Container& students)
     {
         std::ifstream file(filename);
 
@@ -167,29 +165,24 @@ namespace
         std::ofstream failedFile("failed_" + suffix);
 
         if (!passedFile.is_open() || !failedFile.is_open())
-            throw std::runtime_error("Cannot create original benchmark output files.");
+            throw std::runtime_error("Cannot create benchmark output files.");
 
         passedFile << std::fixed << std::setprecision(2);
         failedFile << std::fixed << std::setprecision(2);
 
         for (const auto& student : passed)
-        {
-            passedFile << student.name << ' '
-                << student.surname << ' '
-                << student.finalGrade() << '\n';
-        }
+            passedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
 
         for (const auto& student : failed)
-        {
-            failedFile << student.name << ' '
-                << student.surname << ' '
-                << student.finalGrade() << '\n';
-        }
+            failedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
 
         if (!passedFile.good() || !failedFile.good())
-            throw std::runtime_error("Error writing original benchmark output files.");
+            throw std::runtime_error("Error writing benchmark output files.");
     }
 
+    // ORIGINAL V0.25 BENCHMARK
     template <typename Container>
     double runOriginalBenchmark(
         const std::string& containerName,
@@ -202,16 +195,11 @@ namespace
         Container passed;
         Container failed;
 
-        // Read students.
         readStudents(filename, students);
-
-        // Sort students by final grade.
         sortByFinalGrade(students);
 
-        // Copy passing students into the passed container.
         std::copy_if(
-            students.begin(),
-            students.end(),
+            students.begin(), students.end(),
             std::back_inserter(passed),
             [](const BenchmarkStudent& student)
             {
@@ -219,10 +207,8 @@ namespace
             }
         );
 
-        // Copy failing students into the failed container.
         std::copy_if(
-            students.begin(),
-            students.end(),
+            students.begin(), students.end(),
             std::back_inserter(failed),
             [](const BenchmarkStudent& student)
             {
@@ -230,16 +216,14 @@ namespace
             }
         );
 
-        // Write the results.
         writeResults(passed, failed, containerName, size);
 
         const auto finish = std::chrono::steady_clock::now();
 
-        return std::chrono::duration<double>(
-            finish - start
-        ).count();
+        return std::chrono::duration<double>(finish - start).count();
     }
 
+    // STRATEGY 1: COPY PASSED AND FAILED STUDENTS
     template <typename Container>
     double runStrategy1Benchmark(
         const std::string& containerName,
@@ -252,16 +236,11 @@ namespace
         Container passed;
         Container failed;
 
-        // Load students into the original container.
         readStudents(filename, students);
-
-        // Sort students by final grade.
         sortByFinalGrade(students);
 
-        // Copy passing students.
         std::copy_if(
-            students.begin(),
-            students.end(),
+            students.begin(), students.end(),
             std::back_inserter(passed),
             [](const BenchmarkStudent& student)
             {
@@ -269,10 +248,8 @@ namespace
             }
         );
 
-        // Copy failing students.
         std::copy_if(
-            students.begin(),
-            students.end(),
+            students.begin(), students.end(),
             std::back_inserter(failed),
             [](const BenchmarkStudent& student)
             {
@@ -293,56 +270,106 @@ namespace
         failedFile << std::fixed << std::setprecision(2);
 
         for (const auto& student : passed)
-        {
-            passedFile << student.name << ' '
-                << student.surname << ' '
-                << student.finalGrade() << '\n';
-        }
+            passedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
 
         for (const auto& student : failed)
-        {
-            failedFile << student.name << ' '
-                << student.surname << ' '
-                << student.finalGrade() << '\n';
-        }
+            failedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
 
         if (!passedFile.good() || !failedFile.good())
-            throw std::runtime_error("Error writing Strategy 1 output files.");
+            throw std::runtime_error("Error writing Strategy 1 files.");
 
         const auto finish = std::chrono::steady_clock::now();
 
-        return std::chrono::duration<double>(
-            finish - start
-        ).count();
+        return std::chrono::duration<double>(finish - start).count();
+    }
+
+    // STRATEGY 2: MOVE FAILED STUDENTS AND REMOVE THEM FROM ORIGINAL
+    template <typename Container>
+    double runStrategy2Benchmark(
+        const std::string& containerName,
+        int size,
+        const std::string& filename)
+    {
+        const auto start = std::chrono::steady_clock::now();
+
+        Container students;
+        Container failed;
+
+        readStudents(filename, students);
+        sortByFinalGrade(students);
+
+        // Find the first student with a failing grade.
+        auto firstFailed = std::find_if(
+            students.begin(),
+            students.end(),
+            [](const BenchmarkStudent& student)
+            {
+                return student.finalGrade() < 5.0;
+            }
+        );
+
+        // Move failing students into the new container.
+        std::move(
+            firstFailed,
+            students.end(),
+            std::back_inserter(failed)
+        );
+
+        // Remove moved students from the original container.
+        students.erase(firstFailed, students.end());
+
+        const std::string suffix =
+            containerName + "_" + std::to_string(size) + ".txt";
+
+        std::ofstream passedFile("strategy2_passed_" + suffix);
+        std::ofstream failedFile("strategy2_failed_" + suffix);
+
+        if (!passedFile.is_open() || !failedFile.is_open())
+            throw std::runtime_error("Cannot create Strategy 2 output files.");
+
+        passedFile << std::fixed << std::setprecision(2);
+        failedFile << std::fixed << std::setprecision(2);
+
+        // The original container now holds passing students only.
+        for (const auto& student : students)
+            passedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
+
+        // The new container holds failing students only.
+        for (const auto& student : failed)
+            failedFile << student.name << ' ' << student.surname << ' '
+            << student.finalGrade() << '\n';
+
+        if (!passedFile.good() || !failedFile.good())
+            throw std::runtime_error("Error writing Strategy 2 files.");
+
+        const auto finish = std::chrono::steady_clock::now();
+
+        return std::chrono::duration<double>(finish - start).count();
     }
 }
 
+// ORIGINAL BENCHMARK
 void ContainerBenchmark::runAllBenchmarks()
 {
     std::ofstream results("container_benchmark_results.csv");
 
     if (!results.is_open())
-        throw std::runtime_error("Cannot create container benchmark results CSV.");
+        throw std::runtime_error("Cannot create original benchmark CSV.");
 
     results << "DatasetSize,Container,TotalSeconds\n";
 
-    std::cout << "\n===== ORIGINAL V0.25 CONTAINER BENCHMARK =====\n";
-    std::cout << "Timing includes reading, sorting, copying and writing.\n\n";
-
-    std::cout << std::left
-        << std::setw(14) << "Students"
-        << std::setw(14) << "Vector (s)"
-        << std::setw(14) << "List (s)"
-        << std::setw(14) << "Deque (s)"
-        << '\n';
-
-    std::cout << std::string(56, '-') << '\n';
+    std::cout << "\n===== ORIGINAL V0.25 BENCHMARK =====\n";
 
     for (int size : DATASET_SIZES)
     {
         try
         {
             const std::string filename = findDataset(size);
+
+            std::cout << "\nDataset: " << size << " students\n";
 
             const double vectorTime =
                 runOriginalBenchmark<std::vector<BenchmarkStudent>>(
@@ -356,13 +383,10 @@ void ContainerBenchmark::runAllBenchmarks()
                 runOriginalBenchmark<std::deque<BenchmarkStudent>>(
                     "deque", size, filename);
 
-            std::cout << std::left
-                << std::setw(14) << size
-                << std::setw(14) << std::fixed << std::setprecision(4)
-                << vectorTime
-                << std::setw(14) << listTime
-                << std::setw(14) << dequeTime
-                << '\n';
+            std::cout << std::fixed << std::setprecision(4);
+            std::cout << "Vector: " << vectorTime << " seconds\n";
+            std::cout << "List:   " << listTime << " seconds\n";
+            std::cout << "Deque:  " << dequeTime << " seconds\n";
 
             results << size << ",vector," << vectorTime << '\n';
             results << size << ",list," << listTime << '\n';
@@ -381,17 +405,17 @@ void ContainerBenchmark::runAllBenchmarks()
     std::cout << "Results saved in container_benchmark_results.csv\n";
 }
 
+// STRATEGY 1 BENCHMARK
 void ContainerBenchmark::runStrategy1()
 {
     std::ofstream results("strategy1_benchmark_results.csv");
 
     if (!results.is_open())
-        throw std::runtime_error("Cannot create Strategy 1 results CSV.");
+        throw std::runtime_error("Cannot create Strategy 1 CSV.");
 
     results << "DatasetSize,Container,TotalSeconds\n";
 
     std::cout << "\n===== STRATEGY 1 BENCHMARK =====\n";
-    std::cout << "Original students container remains unchanged.\n\n";
 
     for (int size : DATASET_SIZES)
     {
@@ -431,6 +455,64 @@ void ContainerBenchmark::runStrategy1()
         }
     }
 
-    std::cout << "\nStrategy 1 benchmark completed.\n";
+    std::cout << "\nStrategy 1 completed.\n";
     std::cout << "Results saved in strategy1_benchmark_results.csv\n";
+}
+
+// STRATEGY 2 BENCHMARK
+void ContainerBenchmark::runStrategy2()
+{
+    std::ofstream results("strategy2_benchmark_results.csv");
+
+    if (!results.is_open())
+        throw std::runtime_error("Cannot create Strategy 2 CSV.");
+
+    results << "DatasetSize,Container,TotalSeconds\n";
+
+    std::cout << "\n===== STRATEGY 2 BENCHMARK =====\n";
+    std::cout << "Failed students are moved into a separate container.\n";
+
+    for (int size : DATASET_SIZES)
+    {
+        try
+        {
+            const std::string filename = findDataset(size);
+
+            std::cout << "\nDataset: " << size << " students\n";
+
+            std::cout << "Processing vector...\n";
+            const double vectorTime =
+                runStrategy2Benchmark<std::vector<BenchmarkStudent>>(
+                    "vector", size, filename);
+
+            std::cout << "Processing list...\n";
+            const double listTime =
+                runStrategy2Benchmark<std::list<BenchmarkStudent>>(
+                    "list", size, filename);
+
+            std::cout << "Processing deque...\n";
+            const double dequeTime =
+                runStrategy2Benchmark<std::deque<BenchmarkStudent>>(
+                    "deque", size, filename);
+
+            std::cout << std::fixed << std::setprecision(4);
+            std::cout << "Vector: " << vectorTime << " seconds\n";
+            std::cout << "List:   " << listTime << " seconds\n";
+            std::cout << "Deque:  " << dequeTime << " seconds\n";
+
+            results << size << ",vector," << vectorTime << '\n';
+            results << size << ",list," << listTime << '\n';
+            results << size << ",deque," << dequeTime << '\n';
+
+            results.flush();
+        }
+        catch (const std::exception& error)
+        {
+            std::cerr << "\nDataset " << size
+                << " failed: " << error.what() << '\n';
+        }
+    }
+
+    std::cout << "\nStrategy 2 completed.\n";
+    std::cout << "Results saved in strategy2_benchmark_results.csv\n";
 }
