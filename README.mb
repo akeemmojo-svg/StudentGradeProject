@@ -1,42 +1,124 @@
-# Student Grade Project
+# Student Grade Project – V1.0
 
-## Introduction
+## Overview
 
-The Student Grade Project is a C++ application for managing students and calculating their final grades.
+This project is a C++ student grade management system. It compares the performance of three STL containers:
 
-The program allows the user to:
+- `std::vector`
+- `std::list`
+- `std::deque`
 
-- Add students
-- Enter an unknown number of homework grades
-- Enter exam grades
-- Calculate homework average
-- Calculate homework median
-- Calculate final grades using Average or Median
-- Generate random students and grades
-- Find students
-- Delete students
-- Sort students by name
-- Save and load student data using a text file
-- Display results in formatted columns
+The project also compares different strategies for sorting and separating students into passed and failed groups.
 
-The project uses object-oriented programming concepts, the `Person` class, `std::vector`, file handling, sorting, random number generation, and the Rule of Three.
+## Dataset Sizes
 
-## Final Grade Formula
+The program uses five datasets:
 
-The final grade is calculated using the following formula:
+- 1,000 students
+- 10,000 students
+- 100,000 students
+- 1,000,000 students
+- 10,000,000 students
 
-**Final points = 0.4 × (Average of HW | Median of HW) + 0.6 × Exam**
+## Benchmark Process
 
-The user can choose whether the Average or Median of homework grades is used.
+The benchmark measures the total processing time, including:
 
-## Project Structure
+1. Reading student data from an input file.
+2. Sorting students by final grade in descending order.
+3. Separating passed students (final grade >= 5.0) and failed students (final grade < 5.0).
+4. Writing the results into separate output files.
 
-- `Person.h` - Person class declaration
-- `Person.cpp` - Person class implementation
-- `main.cpp` - Main program and menu
-- `Students.txt` - Student data file
-- `README.md` - Project documentation
+## Implemented Strategies
+
+### Strategy 1 – Copying
+
+The program creates two new containers:
+
+- One for passed students.
+- One for failed students.
+
+The original container remains unchanged. Students are copied into the new containers.
+
+### Strategy 2 – Moving
+
+The program creates a new container for failed students.
+
+Failed students are moved into this container and removed from the original container. The original container therefore keeps only passed students.
+
+### Optimized Strategy – stable_partition
+
+This version uses `std::stable_partition` to separate passed and failed students while preserving their relative order. It uses `std::list::splice` to transfer failed students into another list.
+
+## Benchmark Results
+
+The following results show the measured processing times in seconds.
+
+| Dataset Size | Strategy | Container | Time (seconds) |
+|---:|---|---|---:|
+| 1,000 | Strategy 1 | list | 0.0882 |
+| 1,000 | Strategy 2 | list | **0.0528** |
+| 1,000 | Optimized | list | 0.0999 |
+| 10,000 | Strategy 1 | list | 0.7496 |
+| 10,000 | Strategy 2 | list | **0.3832** |
+| 10,000 | Optimized | list | 0.7675 |
+| 100,000 | Strategy 1 | list | 7.7288 |
+| 100,000 | Strategy 2 | list | **3.9848** |
+| 100,000 | Optimized | list | 7.6088 |
+| 1,000,000 | Strategy 1 | list | 55.1169 |
+| 1,000,000 | Strategy 2 | list | **34.4625** |
+| 1,000,000 | Optimized | list | 50.6676 |
+| 10,000,000 | Strategy 1 | list | 15.1452 |
+| 10,000,000 | Strategy 2 | list | **6.6397** |
+| 10,000,000 | Optimized | list | 9.9994 |
+
+## Performance Conclusion
+
+Based on the recorded measurements, Strategy 2 using `std::list` was the fastest of the three tested approaches for all five dataset sizes.
+
+Moving failed students instead of copying them reduced the measured processing time compared with Strategy 1.
+
+The 10,000,000-student measurements were unexpectedly lower than the 1,000,000-student measurements. These results should be repeated to confirm consistency.
+
+## C++ Algorithms Used
+
+The project uses STL algorithms and container operations, including:
+
+- `std::find_if`
+- `std::copy_if`
+- `std::move`
+- `std::stable_partition`
+- `std::list::splice`
+
+## Building the Project
+
+Build the project using the Makefile:
+
+```bash
+make
+```
+
+A cross-platform CMake build is also supported.
+
+## Running the Program
+
+Run the compiled application and use the menu to:
+
+1. Add students.
+2. List students.
+3. Find students.
+4. Delete students.
+5. Generate random students.
+6. Sort students by name.
+7. Generate datasets and benchmark.
+8. Run the original container benchmark.
+9. Run Strategy 1.
+10. Run Strategy 2.
+11. Run the optimized benchmark.
+12. Exit.
 
 ## Version
 
-Current version: v0.1
+**V1.0 – Final Version**
+
+This version includes container performance comparisons, two separation strategies, an optimized algorithm implementation, and benchmark results.

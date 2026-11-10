@@ -1,13 +1,37 @@
+
+# Visual Studio files
 .vs/
-x64/  
-# Generated build folders
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build output
+Debug/
+Release/
+x64/
+x86/
+bin/
+obj/
 out/
 build/
-cmake-build-*/
 
 # Compiled files
-*.o
-*.obj
 *.exe
 *.dll
+*.obj
 *.pdb
+*.ilk
+
+# Generated student datasets
+students_*.txt
+students*.txt
+passed*.txt
+failed*.txt
+strategy1_*.txt
+strategy2_*.txt
+optimized_*.txt
+
+# Generated benchmark results
+*_benchmark_results.csv
+ 

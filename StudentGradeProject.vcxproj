@@ -139,11 +139,16 @@
     </Manifest>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="BenchmarkProcessor.cpp" />
+    <ClCompile Include="containerbenchmark.cpp" />
+    <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="person.cpp" />
     <ClCompile Include="StudentGradeProject.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BenchmarkProcessor.h" />
+    <ClInclude Include="containerbenchmark.h" />
     <ClInclude Include="FileManager.h" />
     <ClInclude Include="person.h" />
   </ItemGroup>

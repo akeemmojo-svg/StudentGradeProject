@@ -1,0 +1,6 @@
+DatasetSize,Container,TotalSeconds
+1000,list,0.0999181
+10000,list,0.76753
+100000,list,7.60877
+1000000,list,50.6676
+10000000,list,9.99936
