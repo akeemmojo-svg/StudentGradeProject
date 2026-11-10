@@ -11,6 +11,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <algorithm>
+#include <exception>
 
 int readGrade(const std::string& message)
 {
@@ -46,6 +47,7 @@ void addStudent(std::vector<Person>& students)
     int numberOfHomework;
 
     std::cout << "How many homework grades? ";
+
     while (!(std::cin >> numberOfHomework) || numberOfHomework < 0)
     {
         std::cout << "Enter a valid non-negative number: ";
@@ -58,9 +60,7 @@ void addStudent(std::vector<Person>& students)
     std::vector<int> homework;
 
     for (int i = 0; i < numberOfHomework; i++)
-    {
         homework.push_back(readGrade("Enter homework grade: "));
-    }
 
     int exam = readGrade("Enter exam grade: ");
 
@@ -84,9 +84,7 @@ void listStudents(const std::vector<Person>& students)
     std::cout << "\n===== STUDENT LIST =====\n";
 
     for (const Person& student : students)
-    {
         std::cout << student << '\n';
-    }
 }
 
 void findStudent(const std::vector<Person>& students)
@@ -225,7 +223,8 @@ int main()
         std::cout << "8. Original container benchmark\n";
         std::cout << "9. Strategy 1 benchmark (copy)\n";
         std::cout << "10. Strategy 2 benchmark (move)\n";
-        std::cout << "11. Exit\n";
+        std::cout << "11. Optimized benchmark (List + stable_partition)\n";
+        std::cout << "12. Exit\n";
         std::cout << "Choose an option: ";
 
         if (!(std::cin >> choice))
@@ -238,9 +237,9 @@ int main()
             continue;
         }
 
-        if (choice < 1 || choice > 11)
+        if (choice < 1 || choice > 12)
         {
-            std::cout << "Invalid option. Choose from 1 to 11.\n";
+            std::cout << "Invalid option. Choose from 1 to 12.\n";
             continue;
         }
 
@@ -289,6 +288,10 @@ int main()
                 break;
 
             case 11:
+                ContainerBenchmark::runOptimizedStrategy();
+                break;
+
+            case 12:
                 FileManager::saveStudents(students);
                 std::cout << "\nGoodbye!\n";
                 return 0;
