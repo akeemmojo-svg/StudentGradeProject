@@ -244,6 +244,7 @@ void generateRandomStudents(std::vector<Person>& students)
     }
 
     FileManager::saveStudents(students);
+
     std::cout << numberOfStudents
         << " random students generated successfully.\n";
 }
@@ -275,15 +276,16 @@ int main()
         std::cout << "5. Generate random students\n";
         std::cout << "6. Sort students by name\n";
         std::cout << "7. Generate datasets and benchmark vector\n";
-        std::cout << "8. Benchmark vector, list, and deque\n";
-        std::cout << "9. Exit\n";
+        std::cout << "8. Original container benchmark\n";
+        std::cout << "9. Strategy 1 benchmark\n";
+        std::cout << "10. Exit\n";
         std::cout << "Choose an option: ";
 
         if (!(std::cin >> choice))
         {
             std::cin.clear();
             std::cin.ignore(10000, '\n');
-            std::cout << "\nInvalid input. Please choose 1-9.\n";
+            std::cout << "\nInvalid input. Please choose 1-10.\n";
             continue;
         }
 
@@ -309,13 +311,15 @@ int main()
             else if (choice == 8)
                 ContainerBenchmark::runAllBenchmarks();
             else if (choice == 9)
+                ContainerBenchmark::runStrategy1();
+            else if (choice == 10)
             {
                 FileManager::saveStudents(students);
                 std::cout << "\nGoodbye!\n";
                 break;
             }
             else
-                std::cout << "\nInvalid option. Please choose 1-9.\n";
+                std::cout << "\nInvalid option. Please choose 1-10.\n";
         }
         catch (const std::exception& error)
         {
